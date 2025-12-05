@@ -14,6 +14,7 @@ def sd3_inf_batch(args):# Load pipeline once
     with open(args.prompt_file, 'r') as f:
         prompts = [line.strip() for line in f if line.strip()]
     
+    # Create the output directory specified by the args
     os.makedirs(args.output_dir, exist_ok=True)
     
     for idx, prompt in enumerate(prompts):

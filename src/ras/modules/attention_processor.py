@@ -187,9 +187,19 @@ class RASLuminaAttnProcessor2_0:
             query = query.transpose(1, 2)
             key = key.transpose(1, 2)
             value = value.transpose(1, 2)
-            hidden_states = F.scaled_dot_product_attention(
-                query, key, value, attn_mask=attention_mask, scale=softmax_scale
-            )
+
+            # hidden_states = F.scaled_dot_product_attention(
+            #     query, key, value, attn_mask=attention_mask, scale=softmax_scale
+            # )
+
+            # Same thing, but get access to attention scores.
+            attn_scores = torch.matmul(query, key.transpose(-2, -1)) / (head_dim ** 0.5)
+            attn_weights = torch.softmax(attn_scores, dim=-1)
+            avg_attn = attn_weights.mean(dim=1)  # OUR METRIC!
+            token_importance = avg_attn.sum(dim=-1)
+            ras_manager.MANAGER.attention_importance = token_importance
+            hidden_states = torch.matmul(attn_weights, value)
+
             hidden_states = hidden_states.transpose(1, 2).to(dtype)
         else:
             from flash_attn import flash_attn_func
