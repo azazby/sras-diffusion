@@ -3,6 +3,7 @@ class ras_manager:
         self.patch_size = 2
         self.scheduler_start_step = 4
         self.scheduler_end_step = 30
+        # self.metric = "std"
         self.metric = "std"
         self.error_reset_steps = [12, 22]
         self.replace_with_flash_attn = False
