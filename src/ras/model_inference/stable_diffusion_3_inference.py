@@ -33,14 +33,13 @@ def sd3_inf(args):
     # Check Output File
     output_dir = args.output
     # If we are given prompt file, check if output directory exists
-    if args.prompt_file is not None:
-        # If the user passed a filename like 'out.png', we strip it to get the folder
-        if output_dir.endswith('.png'):
-            output_dir = os.path.dirname(output_dir)
-        # Make output directory if it doesn't exist
-        if output_dir and not os.path.exists(output_dir):
-            print(f"Creating output directory: {output_dir}")
-            os.makedirs(output_dir, exist_ok=True)
+    # If the user passed a filename like 'out.png', we strip it to get the folder
+    if output_dir.endswith('.png'):
+        output_dir = os.path.dirname(output_dir)
+    # Make output directory if it doesn't exist
+    if output_dir and not os.path.exists(output_dir):
+        print(f"Creating output directory: {output_dir}")
+        os.makedirs(output_dir, exist_ok=True)
 
     # Inference Loop
     for prompt_text, file_idx in prompts_data:
@@ -48,7 +47,7 @@ def sd3_inf(args):
         image = pipeline(
                         generator=generator,
                         num_inference_steps=numsteps,
-                        prompt=args.prompt,
+                        prompt=prompt_text,
                         negative_prompt=args.negative_prompt,
                         height=args.height,
                         width=args.width,
@@ -56,7 +55,7 @@ def sd3_inf(args):
                         ).images[0]
         # Save to Drive
         # Save Image
-        img_filename = f"output_{file_idx}.png"
+        img_filename = f"img_{file_idx}.png"
         full_img_path = os.path.join(output_dir, img_filename)
         image.save(full_img_path)
         print(f"Saved Img to Drive: {full_img_path}")
