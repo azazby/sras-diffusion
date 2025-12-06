@@ -107,7 +107,14 @@ class RASFlowMatchEulerDiscreteScheduler(FlowMatchEulerDiscreteScheduler):
         elif ras_manager.MANAGER.metric == "l2norm":
             metric = torch.norm(diff, p=2, dim=-1).view(height // ras_manager.MANAGER.patch_size, ras_manager.MANAGER.patch_size, width // ras_manager.MANAGER.patch_size, ras_manager.MANAGER.patch_size).transpose(-2, -3).mean(-1).mean(-1).view(-1)
         elif ras_manager.MANAGER.metric == "attention_avg":
-            metric = ras_manager.MANAGER.attention_importance.squeeze(0)
+            assert ras_manager.MANAGER.attention_importance is not None, \
+                "Attention importance not set!"
+            num_patches = (height // ras_manager.MANAGER.patch_size) * (width // ras_manager.MANAGER.patch_size)
+            print(f"[DEBUG] attention_importance shape: {ras_manager.MANAGER.attention_importance.shape}")
+            print(f"[DEBUG] num_patches: {num_patches}")
+            print(f"[DEBUG] drop_cnt shape: {self.drop_cnt.shape}")
+            metric = ras_manager.MANAGER.attention_importance[0, :num_patches]
+            print(f"[DEBUG] After slicing - metric shape: {metric.shape}")
         else:
             raise ValueError("Unknown metric")
 

@@ -198,6 +198,7 @@ class RASLuminaAttnProcessor2_0:
             avg_attn = attn_weights.mean(dim=1)  # OUR METRIC!
             token_importance = avg_attn.sum(dim=-1)
             ras_manager.MANAGER.attention_importance = token_importance
+            print(f"[DEBUG] Attention importance computed: shape={token_importance.shape}")
             hidden_states = torch.matmul(attn_weights, value)
 
             hidden_states = hidden_states.transpose(1, 2).to(dtype)
@@ -321,7 +322,19 @@ class RASJointAttnProcessor2_0:
             query = query.view(batch_size, -1, attn.heads, head_dim).transpose(1, 2)
             key = key.view(batch_size, -1, attn.heads, head_dim).transpose(1, 2)
             value = value.view(batch_size, -1, attn.heads, head_dim).transpose(1, 2)
-            hidden_states = F.scaled_dot_product_attention(query, key, value, dropout_p=0.0, is_causal=False)
+            
+            # Manual attention computation
+            attn_scores = torch.matmul(query, key.transpose(-2, -1)) / (head_dim ** 0.5)
+            attn_weights = torch.softmax(attn_scores, dim=-1)
+            
+            # YOUR METRIC: Average across heads
+            avg_attn = attn_weights.mean(dim=1)  # [batch, heads, seq_len, seq_len] -> [batch, seq_len, seq_len]
+            token_importance = avg_attn.sum(dim=-1)  # [batch, seq_len]
+            ras_manager.MANAGER.attention_importance = token_importance
+            print(f"[DEBUG] Attention importance computed: shape={token_importance.shape}")
+            
+            # Compute output
+            hidden_states = torch.matmul(attn_weights, value)
             hidden_states = hidden_states.transpose(1, 2).reshape(batch_size, -1, attn.heads * head_dim)
             hidden_states = hidden_states.to(query.dtype)
         else:
