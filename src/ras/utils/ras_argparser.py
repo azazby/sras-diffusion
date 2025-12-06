@@ -22,5 +22,6 @@ def parse_args():
     parser.add_argument("--skip_num_step_length", type=int, default=0, help="The interval to change the skip token number")
     parser.add_argument("--enable_index_fusion", action="store_true", help="Enable index fusion for RAS")
     parser.add_argument("--save_attn", action="store_true", help="Enable saving attention scores for visualization")
+    parser.add_argument("--vanilla", action="store_true", help="Ignore RAS and use Vanilla SD3")
 
     return parser.parse_args()
