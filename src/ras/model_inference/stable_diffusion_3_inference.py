@@ -40,8 +40,9 @@ def sd3_inf(args):
         os.makedirs(output_dir, exist_ok=True)
 
     # Inference Loop
-    for prompt_text, file_idx in prompts_data:
-        print(f"Generating Index {file_idx}: {prompt_text[:40]}...")
+    for i, prompt_data in enumerate(prompts_data):
+        prompt_text, file_idx = prompt_data
+        print(f"Generating Img {i+1}/{len(prompt_data)}: Index {file_idx}: {prompt_text[:40]}...")
         # reset RAS Manager state
         ras_manager.MANAGER.reset_internal_state()
         # reset Generator seed each loop
