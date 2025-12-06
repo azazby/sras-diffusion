@@ -1,4 +1,5 @@
 
+
 python ../src/ras/model_inference/stable_diffusion_3_inference.py \
     --prompt "A red heart in the clouds over water, in the style of zbrush, light pink and sky-blue, I can't believe how beautiful this is, hyperbolic expression, nyc explosion coverage, unreal engine 5, robert bissell." \
     --output "output.png" \

@@ -106,6 +106,10 @@ class RASFlowMatchEulerDiscreteScheduler(FlowMatchEulerDiscreteScheduler):
             metric = torch.std(diff, dim=-1).view(height // ras_manager.MANAGER.patch_size, ras_manager.MANAGER.patch_size, width // ras_manager.MANAGER.patch_size, ras_manager.MANAGER.patch_size).transpose(-2, -3).mean(-1).mean(-1).view(-1)
         elif ras_manager.MANAGER.metric == "l2norm":
             metric = torch.norm(diff, p=2, dim=-1).view(height // ras_manager.MANAGER.patch_size, ras_manager.MANAGER.patch_size, width // ras_manager.MANAGER.patch_size, ras_manager.MANAGER.patch_size).transpose(-2, -3).mean(-1).mean(-1).view(-1)
+        elif ras_manager.MANAGER.metric == "random":
+            n_patches = (height // ras_manager.MANAGER.patch_size) * (width // ras_manager.MANAGER.patch_size) # total num patches
+            # generate random scores between 0 and 1
+            metric = torch.rand(n_patches, device=diff.device, dtype=diff.dtype)
         else:
             raise ValueError("Unknown metric")
 
