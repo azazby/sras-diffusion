@@ -109,12 +109,22 @@ class RASFlowMatchEulerDiscreteScheduler(FlowMatchEulerDiscreteScheduler):
         elif ras_manager.MANAGER.metric == "attention_avg":
             assert ras_manager.MANAGER.attention_importance is not None, \
                 "Attention importance not set!"
+            
             num_patches = (height // ras_manager.MANAGER.patch_size) * (width // ras_manager.MANAGER.patch_size)
-            print(f"[DEBUG] attention_importance shape: {ras_manager.MANAGER.attention_importance.shape}")
-            print(f"[DEBUG] num_patches: {num_patches}")
-            print(f"[DEBUG] drop_cnt shape: {self.drop_cnt.shape}")
-            metric = ras_manager.MANAGER.attention_importance[0, :num_patches]
-            print(f"[DEBUG] After slicing - metric shape: {metric.shape}")
+            
+            # Take first batch, get only image tokens (not text tokens)
+            attn_importance = ras_manager.MANAGER.attention_importance[0]
+            
+            # Handle variable sequence length due to RAS caching
+            if attn_importance.shape[0] < num_patches:
+                # Pad with zeros if shorter (some tokens were cached)
+                metric = torch.zeros(num_patches, device=attn_importance.device)
+                metric[:attn_importance.shape[0]] = attn_importance
+            else:
+                # Slice to num_patches if longer (includes text tokens)
+                metric = attn_importance[:num_patches]
+            
+            print(f"[DEBUG] Final metric shape: {metric.shape}")
         else:
             raise ValueError("Unknown metric")
 
