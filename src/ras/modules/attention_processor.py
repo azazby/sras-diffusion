@@ -43,16 +43,11 @@ class RASJointAttnProcessor2_0:
         **kwargs,
     ) -> torch.FloatTensor:
         residual = hidden_states
-        print("----------------\nstep",ras_manager.MANAGER.current_step)
-        print("block", self.block_index)
-        print("hidden_states size", hidden_states.shape)
-        print("encoder_hidden_states", encoder_hidden_states.shape)
 
         batch_size = hidden_states.shape[0]
 
         # `sample` projections.
         query = attn.to_q(hidden_states)
-        print("query size", query.shape)
 
         k_fuse_linear = ras_manager.MANAGER.sample_ratio < 1.0 and ras_manager.MANAGER.is_RAS_step and \
             self.k_cache is not None and ras_manager.MANAGER.enable_index_fusion
@@ -141,20 +136,20 @@ class RASJointAttnProcessor2_0:
             key = key.view(batch_size, -1, attn.heads, head_dim).transpose(1, 2)
             value = value.view(batch_size, -1, attn.heads, head_dim).transpose(1, 2)
             # Calculate hidden states 
+            # NOTE: in RAS, Q_Len = num fast-update tokens + num prompt tokens (aka Q_len does not include slow-update / cached tokens)
             # Manual Attention Calculation for extracting attention scores
-            if ras_manager.MANAGER.save_attn:
+            if ras_manager.MANAGER.save_attn or ras_manager.MANAGER.metric=='attention':
                 # Calculate Attention Matrix
                 scale = 1.0 / math.sqrt(head_dim)
                 attn_scores = torch.matmul(query, key.transpose(-1, -2)) * scale # (Batch, Heads, Q_Len, K_Len)
                 attn_probs = attn_scores.softmax(dim=-1)
-                print("attn size", attn_probs.shape)
                 
                 # Calculate Attention Metric Scores
                 # Average across heads
                 avg_across_heads = attn_probs.mean(dim=1) # Shape: (Batch, Q_Len, K_Len)
                 # Sum columns (how much attention does token K receive from all queries Q?)
                 token_attn_scores = avg_across_heads.sum(dim=1) # (Batch, K_Len), score for every token in the image/context
-                print("token_attn_scores size", token_attn_scores.shape)
+
                 # Store Attention Scores in manager
                 if self.block_index is None:
                     raise ValueError("No block index provided.")

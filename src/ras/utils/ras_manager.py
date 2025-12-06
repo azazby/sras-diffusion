@@ -1,3 +1,5 @@
+import re
+
 class ras_manager:
     def __init__(self):
         self.patch_size = 2
@@ -23,9 +25,12 @@ class ras_manager:
         self.image_rotary_emb_skip = None
         self.cached_scaled_noise = None
         self.skip_token_num_list = []
-        # Add storage for attention scores
+        # Add storage for attention scores for visualizing attn maps
         self.save_attn = False
+        # attn_scores is for storing ALL attn scores across all blocks and steps
         self.attn_scores = {} # self.attn_scores[step_index][block_index] = tensor of attn scores
+        # Add storage for attention scoring metric
+        self.attn_blocks = []
 
     def set_parameters(self, args):
         self.patch_size = args.patch_size
@@ -45,6 +50,8 @@ class ras_manager:
         self.enable_index_fusion = args.enable_index_fusion
         self.generate_skip_token_list()
         self.save_attn = args.save_attn 
+        self.attn_blocks = [int(block.strip()) for block in args.attn_blocks.split(',') if block.strip()]
+        print("Using attention blocks: ",self.attn_blocks)
 
     def generate_skip_token_list(self):
         avg_skip_token_num = int((1 - self.sample_ratio) * ((self.height // self.patch_size) // self.vae_size) * ((self.weight // self.patch_size) // self.vae_size))

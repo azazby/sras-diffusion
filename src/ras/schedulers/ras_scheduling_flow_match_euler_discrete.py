@@ -104,12 +104,35 @@ class RASFlowMatchEulerDiscreteScheduler(FlowMatchEulerDiscreteScheduler):
         # calculate the metric for each patch
         if ras_manager.MANAGER.metric == "std":
             metric = torch.std(diff, dim=-1).view(height // ras_manager.MANAGER.patch_size, ras_manager.MANAGER.patch_size, width // ras_manager.MANAGER.patch_size, ras_manager.MANAGER.patch_size).transpose(-2, -3).mean(-1).mean(-1).view(-1)
+            descending = False
         elif ras_manager.MANAGER.metric == "l2norm":
             metric = torch.norm(diff, p=2, dim=-1).view(height // ras_manager.MANAGER.patch_size, ras_manager.MANAGER.patch_size, width // ras_manager.MANAGER.patch_size, ras_manager.MANAGER.patch_size).transpose(-2, -3).mean(-1).mean(-1).view(-1)
+            descending = True
         elif ras_manager.MANAGER.metric == "random":
             n_patches = (height // ras_manager.MANAGER.patch_size) * (width // ras_manager.MANAGER.patch_size) # total num patches
             # generate random scores between 0 and 1
             metric = torch.rand(n_patches, device=diff.device, dtype=diff.dtype)
+            descending = False
+        elif ras_manager.MANAGER.metric == 'attention':
+            current_step = ras_manager.MANAGER.current_step
+            n_patches = (height // ras_manager.MANAGER.patch_size) * (width // ras_manager.MANAGER.patch_size)
+            token_attn_scores = []
+            for block in ras_manager.MANAGER.attn_blocks:
+                try:
+                    token_attn_score_per_block = ras_manager.MANAGER.attn_scores[current_step][block] # shape: (batch_size, num img tokens + num prompt text tokens)
+                    pos_token_attn_score_per_block = token_attn_score_per_block[1] # get positive/conditional prompt, should be at batch index = 1
+                    pos_token_attn_score_per_block = pos_token_attn_score_per_block[:n_patches] # filter only img tokens
+                except Exception as e:
+                    print("Attention Metric Key Error")
+                    raise e
+                token_attn_scores.append(pos_token_attn_score_per_block)
+                print("attn per block img only", pos_token_attn_score_per_block.shape)
+            stacked = torch.stack(token_attn_scores) # shape: (num attn blocks, num img tokens)
+            print("stacked", stacked.shape) 
+            avg_scores = token_attn_scores.mean(stacked, dim=0) # average scores across attn blocks
+            print("avg scores", avg_scores.shape)
+            metric = avg_scores
+            descending = True
         else:
             raise ValueError("Unknown metric")
 
@@ -117,7 +140,7 @@ class RASFlowMatchEulerDiscreteScheduler(FlowMatchEulerDiscreteScheduler):
         metric *= torch.exp(ras_manager.MANAGER.starvation_scale * self.drop_cnt)
         current_skip_num = ras_manager.MANAGER.skip_token_num_list[self._step_index + 1]
         assert ras_manager.MANAGER.high_ratio >= 0 and ras_manager.MANAGER.high_ratio <= 1, "High ratio should be in the range of [0, 1]"
-        indices = torch.sort(metric, dim=0, descending=False).indices
+        indices = torch.sort(metric, dim=0, descending=descending).indices
         low_bar = int(current_skip_num * (1 - ras_manager.MANAGER.high_ratio))
         high_bar = int(current_skip_num * ras_manager.MANAGER.high_ratio)
         cached_patchified_indices = torch.cat([indices[:low_bar], indices[-high_bar:]])
