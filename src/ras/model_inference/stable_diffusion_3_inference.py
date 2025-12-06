@@ -27,4 +27,6 @@ if __name__ == "__main__":
     args = parse_args()
     ras_manager.MANAGER.set_parameters(args)
     sd3_inf(args)
-    
+    # save attention scores for visualization testing
+    torch.save(ras_manager.MANAGER.attn_scores, 'attn_scores.pt')
+
