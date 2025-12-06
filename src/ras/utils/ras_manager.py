@@ -23,6 +23,9 @@ class ras_manager:
         self.image_rotary_emb_skip = None
         self.cached_scaled_noise = None
         self.skip_token_num_list = []
+        # Add storage for attention scores
+        self.save_attn = False
+        self.attn_scores = {} # self.attn_scores[step_index][block_index] = tensor of attn scores
 
 
     def set_parameters(self, args):
@@ -42,6 +45,7 @@ class ras_manager:
         self.high_ratio = args.high_ratio
         self.enable_index_fusion = args.enable_index_fusion
         self.generate_skip_token_list()
+        self.save_attn = args.save_attn 
 
 
     def generate_skip_token_list(self):

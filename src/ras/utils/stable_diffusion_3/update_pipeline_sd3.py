@@ -6,6 +6,6 @@ def update_sd3_pipeline(pipeline):
     scheduler = RASFlowMatchEulerDiscreteScheduler.from_config(pipeline.scheduler.config)
     pipeline.scheduler = scheduler
     pipeline.transformer.forward = ras_forward.__get__(pipeline.transformer, pipeline.transformer.__class__)
-    for block in pipeline.transformer.transformer_blocks:
-        block.attn.set_processor(RASJointAttnProcessor2_0())
+    for block_index, block in enumerate(pipeline.transformer.transformer_blocks):
+        block.attn.set_processor(RASJointAttnProcessor2_0(block_index=block_index))
     return pipeline

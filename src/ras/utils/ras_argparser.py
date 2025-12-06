@@ -21,5 +21,6 @@ def parse_args():
     parser.add_argument("--skip_num_step", type=int, default=0, help="Parameter for dynamic skip token numbers. The skip token number increases/decreases by this value every skip_num_step_length steps. Can be negative or positive.")
     parser.add_argument("--skip_num_step_length", type=int, default=0, help="The interval to change the skip token number")
     parser.add_argument("--enable_index_fusion", action="store_true", help="Enable index fusion for RAS")
+    parser.add_argument("--save_attn", action="store_true", help="Enable saving attention scores for visualization")
 
     return parser.parse_args()

@@ -23,9 +23,12 @@ import torch.nn.functional as F
 class RASJointAttnProcessor2_0:
     """Attention processor used typically in processing the SD3-like self-attention projections."""
 
-    def __init__(self):
+    def __init__(self, block_index=None):
         if not hasattr(F, "scaled_dot_product_attention"):
             raise ImportError("AttnProcessor2_0 requires PyTorch 2.0, to use it, please upgrade PyTorch to 2.0.")
+        
+        self.block_index = block_index # transformer block index
+
         if ras_manager.MANAGER.sample_ratio < 1.0:
             self.k_cache = None
             self.v_cache = None
@@ -40,11 +43,16 @@ class RASJointAttnProcessor2_0:
         **kwargs,
     ) -> torch.FloatTensor:
         residual = hidden_states
+        print("----------------\nstep",ras_manager.MANAGER.current_step)
+        print("block", self.block_index)
+        print("hidden_states size", hidden_states.shape)
+        print("encoder_hidden_states", encoder_hidden_states.shape)
 
         batch_size = hidden_states.shape[0]
 
         # `sample` projections.
         query = attn.to_q(hidden_states)
+        print("query size", query.shape)
 
         k_fuse_linear = ras_manager.MANAGER.sample_ratio < 1.0 and ras_manager.MANAGER.is_RAS_step and \
             self.k_cache is not None and ras_manager.MANAGER.enable_index_fusion
@@ -60,6 +68,7 @@ class RASJointAttnProcessor2_0:
                 self.k_cache.view(batch_size, self.k_cache.shape[1], -1)
             )
         else:
+            # Calculate keys of active tokens
             key = attn.to_k(hidden_states)
         if v_fuse_linear:
             _partially_linear(
@@ -70,9 +79,8 @@ class RASJointAttnProcessor2_0:
                 self.v_cache.view(batch_size, self.v_cache.shape[1], -1)
             )
         else:
+            # Calculate values of active tokens
             value = attn.to_v(hidden_states)
-
-        
 
         if attn.norm_q is not None:
             query = attn.norm_q(query)
@@ -89,6 +97,7 @@ class RASJointAttnProcessor2_0:
 
         if ras_manager.MANAGER.sample_ratio < 1.0 and ras_manager.MANAGER.is_RAS_step:
             if not ras_manager.MANAGER.enable_index_fusion:
+                # Update KV Cache for active tokens
                 self.k_cache[:, ras_manager.MANAGER.other_patchified_index] = key
                 self.v_cache[:, ras_manager.MANAGER.other_patchified_index] = value
             key = self.k_cache
@@ -131,10 +140,39 @@ class RASJointAttnProcessor2_0:
             query = query.view(batch_size, -1, attn.heads, head_dim).transpose(1, 2)
             key = key.view(batch_size, -1, attn.heads, head_dim).transpose(1, 2)
             value = value.view(batch_size, -1, attn.heads, head_dim).transpose(1, 2)
-            hidden_states = F.scaled_dot_product_attention(query, key, value, dropout_p=0.0, is_causal=False)
+            # Calculate hidden states 
+            # Manual Attention Calculation for extracting attention scores
+            if ras_manager.MANAGER.save_attn:
+                # Calculate Attention Matrix
+                scale = 1.0 / math.sqrt(head_dim)
+                attn_scores = torch.matmul(query, key.transpose(-1, -2)) * scale # (Batch, Heads, Q_Len, K_Len)
+                attn_probs = attn_scores.softmax(dim=-1)
+                print("attn size", attn_probs.shape)
+                
+                # Calculate Attention Metric Scores
+                # Average across heads
+                avg_across_heads = attn_probs.mean(dim=1) # Shape: (Batch, Q_Len, K_Len)
+                # Sum columns (how much attention does token K receive from all queries Q?)
+                token_attn_scores = avg_across_heads.sum(dim=1) # (Batch, K_Len), score for every token in the image/context
+                print("token_attn_scores size", token_attn_scores.shape)
+                # Store Attention Scores in manager
+                if self.block_index is None:
+                    raise ValueError("No block index provided.")
+                current_step = ras_manager.MANAGER.current_step
+                if current_step not in ras_manager.MANAGER.attn_scores:
+                    ras_manager.MANAGER.attn_scores[current_step][self.block_index] = token_attn_scores.detach().cpu()
+
+                # Calculate Output
+                hidden_states = torch.matmul(attn_probs, value)
+
+            # Standard attention calculation
+            else:
+                hidden_states = F.scaled_dot_product_attention(query, key, value, dropout_p=0.0, is_causal=False)
+            
             hidden_states = hidden_states.transpose(1, 2).reshape(batch_size, -1, attn.heads * head_dim)
             hidden_states = hidden_states.to(query.dtype)
         else:
+            # NOTE: our attention-based metrics do not support flash_attn
             from flash_attn import flash_attn_func
             query = query.view(batch_size, -1, attn.heads, head_dim)
             key = key.view(batch_size, -1, attn.heads, head_dim)
