@@ -160,6 +160,10 @@ class RASJointAttnProcessor2_0:
                     raise ValueError("No block index provided.")
                 current_step = ras_manager.MANAGER.current_step
                 if current_step not in ras_manager.MANAGER.attn_scores:
+                    if current_step not in ras_manager.MANAGER.attn_scores:
+                        ras_manager.MANAGER.attn_scores = dict()
+                    if self.block_index not in ras_manager.MANAGER.attn_scores[current_step]:
+                        ras_manager.MANAGER.attn_scores[current_step][self.block_index] = dict()
                     ras_manager.MANAGER.attn_scores[current_step][self.block_index] = token_attn_scores.detach().cpu()
 
                 # Calculate Output
