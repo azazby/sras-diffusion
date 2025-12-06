@@ -129,7 +129,7 @@ class RASFlowMatchEulerDiscreteScheduler(FlowMatchEulerDiscreteScheduler):
                 print("attn per block img only", pos_token_attn_score_per_block.shape)
             stacked = torch.stack(token_attn_scores) # shape: (num attn blocks, num img tokens)
             print("stacked", stacked.shape) 
-            avg_scores = token_attn_scores.mean(stacked, dim=0) # average scores across attn blocks
+            avg_scores = torch.mean(stacked, dim=0) # average scores across attn blocks
             print("avg scores", avg_scores.shape)
             metric = avg_scores
             descending = True
