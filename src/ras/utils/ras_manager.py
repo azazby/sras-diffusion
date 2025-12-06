@@ -26,7 +26,6 @@ class ras_manager:
         # Add storage for attention scores
         self.save_attn = False
         self.attn_scores = {} # self.attn_scores[step_index][block_index] = tensor of attn scores
-        self.vanilla = False
 
     def set_parameters(self, args):
         self.patch_size = args.patch_size
@@ -46,8 +45,6 @@ class ras_manager:
         self.enable_index_fusion = args.enable_index_fusion
         self.generate_skip_token_list()
         self.save_attn = args.save_attn 
-        self.vanilla = args.vanilla
-
 
     def generate_skip_token_list(self):
         avg_skip_token_num = int((1 - self.sample_ratio) * ((self.height // self.patch_size) // self.vae_size) * ((self.weight // self.patch_size) // self.vae_size))

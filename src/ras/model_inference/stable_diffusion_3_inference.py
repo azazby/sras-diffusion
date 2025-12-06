@@ -8,7 +8,10 @@ from ras.utils.ras_argparser import parse_args
 def sd3_inf(args):
     pipeline = StableDiffusion3Pipeline.from_pretrained("stabilityai/stable-diffusion-3-medium-diffusers", dtype=torch.float16, use_auth_token=True)
     pipeline.to("cuda")
-    pipeline = update_sd3_pipeline(pipeline)
+    if args.vanilla:
+        print("Vanilla SD3")
+    else:
+        pipeline = update_sd3_pipeline(pipeline)
     generator = torch.Generator("cuda").manual_seed(args.seed) if args.seed is not None else None
     numsteps = args.num_inference_steps
     print("Generating image...")
