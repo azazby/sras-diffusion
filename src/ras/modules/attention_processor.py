@@ -143,6 +143,7 @@ class RASJointAttnProcessor2_0:
                                 and self.block_index in ras_manager.MANAGER.attn_blocks \
                                 and ras_manager.MANAGER.is_RAS_step
             if ras_manager.MANAGER.save_attn or is_RAS_attn_step:
+                print("[DEBUG] Saving attention map for block {self.block}, step {ras_manager.MANAGER.current_step}")
                 # Calculate Attention Matrix
                 scale = 1.0 / math.sqrt(head_dim)
                 attn_scores = torch.matmul(query, key.transpose(-1, -2)) * scale # (Batch, Heads, Q_Len, K_Len)
