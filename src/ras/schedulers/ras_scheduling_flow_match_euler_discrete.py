@@ -131,7 +131,7 @@ class RASFlowMatchEulerDiscreteScheduler(FlowMatchEulerDiscreteScheduler):
             print("stacked", stacked.shape) 
             avg_scores = torch.mean(stacked, dim=0) # average scores across attn blocks
             print("avg scores", avg_scores.shape)
-            metric = avg_scores
+            metric = avg_scores.to(diff.device) # move to correct device
             descending = True
         else:
             raise ValueError("Unknown metric")
