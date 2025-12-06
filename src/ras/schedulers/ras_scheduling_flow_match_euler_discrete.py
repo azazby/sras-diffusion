@@ -103,10 +103,13 @@ class RASFlowMatchEulerDiscreteScheduler(FlowMatchEulerDiscreteScheduler):
         diff = diff.squeeze(0).permute(1, 2, 0)
         # calculate the metric for each patch
         if ras_manager.MANAGER.metric == "std":
+            print("[METRIC] Using std")
             metric = torch.std(diff, dim=-1).view(height // ras_manager.MANAGER.patch_size, ras_manager.MANAGER.patch_size, width // ras_manager.MANAGER.patch_size, ras_manager.MANAGER.patch_size).transpose(-2, -3).mean(-1).mean(-1).view(-1)
         elif ras_manager.MANAGER.metric == "l2norm":
+            print("[METRIC] Using l2norm")
             metric = torch.norm(diff, p=2, dim=-1).view(height // ras_manager.MANAGER.patch_size, ras_manager.MANAGER.patch_size, width // ras_manager.MANAGER.patch_size, ras_manager.MANAGER.patch_size).transpose(-2, -3).mean(-1).mean(-1).view(-1)
         elif ras_manager.MANAGER.metric == "attention_avg":
+            print("[METRIC] Using attention_avg")
             assert ras_manager.MANAGER.attention_importance is not None, \
                 "Attention importance not set!"
             
@@ -123,8 +126,6 @@ class RASFlowMatchEulerDiscreteScheduler(FlowMatchEulerDiscreteScheduler):
             else:
                 # Slice to num_patches if longer (includes text tokens)
                 metric = attn_importance[:num_patches]
-            
-            print(f"[DEBUG] Final metric shape: {metric.shape}")
         else:
             raise ValueError("Unknown metric")
 

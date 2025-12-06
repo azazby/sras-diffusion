@@ -198,7 +198,6 @@ class RASLuminaAttnProcessor2_0:
             avg_attn = attn_weights.mean(dim=1)  # OUR METRIC!
             token_importance = avg_attn.sum(dim=-1)
             ras_manager.MANAGER.attention_importance = token_importance
-            print(f"[DEBUG] Attention importance computed: shape={token_importance.shape}")
             hidden_states = torch.matmul(attn_weights, value)
 
             hidden_states = hidden_states.transpose(1, 2).to(dtype)
@@ -331,7 +330,6 @@ class RASJointAttnProcessor2_0:
             avg_attn = attn_weights.mean(dim=1)  # [batch, heads, seq_len, seq_len] -> [batch, seq_len, seq_len]
             token_importance = avg_attn.sum(dim=-1)  # [batch, seq_len]
             ras_manager.MANAGER.attention_importance = token_importance
-            print(f"[DEBUG] Attention importance computed: shape={token_importance.shape}")
             
             # Compute output
             hidden_states = torch.matmul(attn_weights, value)
