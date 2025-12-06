@@ -138,7 +138,11 @@ class RASJointAttnProcessor2_0:
             # Calculate hidden states 
             # NOTE: in RAS, Q_Len = num fast-update tokens + num prompt tokens (aka Q_len does not include slow-update / cached tokens)
             # Manual Attention Calculation for extracting attention scores
-            if ras_manager.MANAGER.save_attn or ras_manager.MANAGER.metric=='attention':
+            # check if current step and block are relevant for attention scores
+            is_RAS_attn_step = ras_manager.MANAGER.metric=='attention' \
+                                and self.block_index in ras_manager.MANAGER.attn_blocks \
+                                and ras_manager.MANAGER.is_RAS_step
+            if ras_manager.MANAGER.save_attn or is_RAS_attn_step:
                 # Calculate Attention Matrix
                 scale = 1.0 / math.sqrt(head_dim)
                 attn_scores = torch.matmul(query, key.transpose(-1, -2)) * scale # (Batch, Heads, Q_Len, K_Len)
