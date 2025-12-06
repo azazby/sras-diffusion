@@ -10,7 +10,7 @@ def parse_args():
     parser.add_argument("--sample_ratio", type=float, default=0.5, help="Average sample ratio during each step for RAS")
     parser.add_argument("--replace_with_flash_attn", action="store_true", help="Replace the attention mechanism with flash attention")
     parser.add_argument("--error_reset_steps", type=str, default="12,22", help="Dense steps to reset the error, use comma to separate")
-    parser.add_argument("--metric", type=str, default="std", choices=["std", "l2norm", "random"], help="Metric to calculate the patch selection, currently support std and l2norm")
+    parser.add_argument("--metric", type=str, default="std", choices=["std", "l2norm", "random", "attention"], help="Metric to calculate the patch selection, currently support std and l2norm")
     parser.add_argument("--high_ratio", type=float, default=1, help="Based on the metric selected, the ratio of the high value chosen to be cached. Range from 0 to 1")
     parser.add_argument("--height", type=int, default=1024, help="Height of the image")
     parser.add_argument("--width", type=int, default=1024, help="Width of the image")
