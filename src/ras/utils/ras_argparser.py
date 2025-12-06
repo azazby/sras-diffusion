@@ -23,5 +23,5 @@ def parse_args():
     parser.add_argument("--enable_index_fusion", action="store_true", help="Enable index fusion for RAS")
     parser.add_argument("--save_attn", action="store_true", help="Enable saving attention scores for visualization")
     parser.add_argument("--attn_blocks", type=str, default="8,9,10", help="Dense steps to reset the error, use comma to separate")
-
+    parser.add_argument("--prompt_file", type=str, default=None)
     return parser.parse_args()
