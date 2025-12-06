@@ -95,6 +95,10 @@ class ras_manager:
             self.is_next_RAS_step = True
         else:
             self.is_next_RAS_step = False
+    
+    def reset_internal_state(self):
+        self.reset_cache()
+        self.attn_scores = {}
 
     def increase_step(self):
         self.current_step += 1

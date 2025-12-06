@@ -1,7 +1,7 @@
 import argparse
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Lumina Inference")
+    parser = argparse.ArgumentParser(description="SD3 Inference with RAS")
     parser.add_argument("--prompt", type=str, default="A red heart in the clouds over water, in the style of zbrush, light pink and sky-blue, I can't believe how beautiful this is, hyperbolic expression, nyc explosion coverage, unreal engine 5, robert bissell.")
     parser.add_argument("--negative_prompt", type=str, default="")
     parser.add_argument("--num_inference_steps", type=int, default=30)
@@ -23,5 +23,5 @@ def parse_args():
     parser.add_argument("--enable_index_fusion", action="store_true", help="Enable index fusion for RAS")
     parser.add_argument("--save_attn", action="store_true", help="Enable saving attention scores for visualization")
     parser.add_argument("--attn_blocks", type=str, default="8,9,10", help="Dense steps to reset the error, use comma to separate")
-    parser.add_argument("--prompt_file", type=str, default=None)
+    parser.add_argument("--prompt_file", type=str, default=None, help="Path to pipe-delimited csv file with prompts")
     return parser.parse_args()

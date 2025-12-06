@@ -11,13 +11,12 @@ def sd3_inf(args):
     pipeline = StableDiffusion3Pipeline.from_pretrained("stabilityai/stable-diffusion-3-medium-diffusers", dtype=torch.float16, use_auth_token=True)
     pipeline.to("cuda")
     pipeline = update_sd3_pipeline(pipeline)
-    generator = torch.Generator("cuda").manual_seed(args.seed) if args.seed is not None else None
     numsteps = args.num_inference_steps
 
     # Parse Prompts
     # we expect prompt_file to be a CSV where: Col 1 = Prompt, Col 2 = Index
     prompts_data = []
-    # if given prompt file
+    # If given prompt file
     if hasattr(args, 'prompt_file') and args.prompt_file:
         print(f"Reading prompts from {args.prompt_file}...")
         with open(args.prompt_file, 'r', encoding='utf-8') as f:
@@ -25,7 +24,6 @@ def sd3_inf(args):
             for row in reader:
                 if len(row) >= 2:
                     prompts_data.append((row[0].strip(), row[1].strip()))
-    # else single prompt
     else:
         # Fallback to single CLI prompt if no file provided
         prompts_data.append((args.prompt, "0"))
@@ -44,6 +42,10 @@ def sd3_inf(args):
     # Inference Loop
     for prompt_text, file_idx in prompts_data:
         print(f"Generating Index {file_idx}: {prompt_text[:40]}...")
+        # reset RAS Manager state
+        ras_manager.MANAGER.reset_internal_state()
+        # reset Generator seed each loop
+        generator = torch.Generator("cuda").manual_seed(args.seed) if args.seed is not None else None
         image = pipeline(
                         generator=generator,
                         num_inference_steps=numsteps,

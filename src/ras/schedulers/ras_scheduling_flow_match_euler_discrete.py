@@ -126,7 +126,6 @@ class RASFlowMatchEulerDiscreteScheduler(FlowMatchEulerDiscreteScheduler):
                     print("Attention Metric Key Error")
                     raise e
                 token_attn_scores.append(pos_token_attn_score_per_block)
-                print("attn per block img only", pos_token_attn_score_per_block.shape)
             stacked = torch.stack(token_attn_scores) # shape: (num attn blocks, num img tokens)
             avg_scores = torch.mean(stacked, dim=0) # average scores across attn blocks
             metric = avg_scores.to(diff.device) # move to correct device
