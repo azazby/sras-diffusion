@@ -249,18 +249,18 @@
 
             <h4>How RAS selects tokens</h4>
                 <ul>
-                    <li>At each selective sampling step, tokens are ranked by a scalar score.
+                    <li>At each selective sampling step, tokens are ranked by a scalar <b>score</b>.
                     </li>
-                    <li>A user-defined parameter sampling_ratio determines what fraction of tokens receive updates.
+                    <li>A user-defined parameter <b>sampling_ratio</b> determines what fraction of tokens receive updates.
                     </li>
-                    <li>The original paper computes scores using the per-token standard deviation across channels of the predicted noise from the previous step.
+                    <li>The original paper computes scores using the per-token <b>standard deviation</b> across channels of the predicted noise from the previous step.
                     </li>
                 </ul>
             <h4>Starvation Prevention</h4>
             <p>RAS also performs starvation prevention, where they combat against some tokens rarely or never updating. They do 3 things to accomplish this.
             </p>
             <ul>
-                <li>drop_count weighted score function. 
+                <li><b>drop_count</b> weighted score function. 
                     <ul>
                     <li>RAS tracks how many times each token has been dropped and rescales score.</li>
                     <li>
@@ -269,13 +269,13 @@
                     </ul>
                 </li>
                 <li>
-                    high_ratio exploration.
+                    <b>high_ratio</b> exploration.
                     <ul>
                     <li>Each step selects a mixture of top-scoring and low-scoring tokens. (high_ratio = 0.3 means 70% highest scoring + 30% lowest scoring tokens are selected.)
                     </li>
                     </ul>
                 </li>
-                <li>error_reset_steps
+                <li><b>error_reset_steps</b>
                     <ul>
                     <li>Specified sampling steps where all tokens are updated.
                     </li>
@@ -359,7 +359,7 @@
             </ul>
 
             <h4>Human Study Design</h4>
-            <p>To qualitatively compare the scoring methods, we conducted a human study in which participants viewed two images generated using either vanilla SD3, standard deviation, random selection, attention weights, or Scharr edge detection. We asked users to select the image that best matched the given MS-COCO prompt and was more visually appealing overall. Participants could choose “Image 1”, “Image 2”, or “Both images are about the same”. The metric used to generate each image was hidden and the order of questions were randomized to minimize bias.
+            <p>To qualitatively compare the scoring methods, we conducted a human study in which participants viewed two images generated using either vanilla SD3, standard deviation, random selection, attention weights, or Scharr edge detection. We asked users to select the image that best matched the given MS-COCO prompt and was more visually appealing overall. Participants could choose <b>“Image 1”</b>, <b>“Image 2”</b>, or <b>“Both images are about the same”</b>. The metric used to generate each image was hidden and the order of questions were randomized to minimize bias.
             </p>
             <p>We evaluated each pair of scoring methods using three unique prompts, yielding 30 total comparisons. These comparisons were drawn from a pool of 16 prompts in total; some prompts appeared in more than one method pair, but no prompt was reused within a single pair. We selected image–prompt pairs from MS-COCO 2017 to ensure coverage of diverse scene types, including objects, animals, and human activities.Because a few method pairs were missing in the initial survey, the study was run in two parts. The first part received responses from 91 participants, and the second from 32 participants.
             </p>
