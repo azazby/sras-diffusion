@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Selective Regional Adaptive Sampling for Diffusion Models: Exploring Region Scoring Methods</title>
+    <title>Selective-RAS: Exploring Region Selection Methods for Efficient Diffusion Sampling</title>
     <style>
 
         body {
@@ -200,7 +200,7 @@
             </figure>
             
             
-            <p>Although diffusion models have become prominent in text-to-image generation, they are slow and computationally expensive to run inference with. The denoising process relies on iterative forward passes, where each pass requires attention operations that involve heavy computation across all text and image tokens. This project investigates how different region selection methods influence RAS, a novel diffusion sampling strategy that improves sampling efficiency by updating only a subset of spatial tokens at each step [1]. In the original RAS method, these regions are selected using predicted-noise standard deviation as a scoring heuristic. We explore alternative region-scoring metrics, such as attention-based and edge-based methods, which we believe may better capture semantic importance or fine-grained structure by incorporating more information from attention weights or neighboring tokens.</p>
+            <p>Although diffusion models have become prominent in text-to-image generation, they are slow and computationally expensive to run inference with. The denoising process relies on iterative forward passes, where each pass requires attention operations that involve heavy computation across all text and image tokens. This project investigates how different region selection methods influence Region-Adaptive Sampling (RAS), a novel diffusion sampling strategy proposed by [1] that improves sampling efficiency by updating only a subset of spatial tokens at each step. In the original RAS method, these regions are selected using predicted-noise standard deviation as a scoring heuristic. We explore alternative region-scoring metrics, such as attention-based and edge-based methods, which we believe may better capture semantic importance or fine-grained structure by incorporating more information from attention weights or neighboring tokens.</p>
 
             <p>We demonstrate that standard deviation is a brittle scoring metric for the RAS method, particularly at low sampling ratios and on realistic, multi-object prompts, often failing to prioritize semantically meaningful regions.  We evaluate how these metrics influence token-selection behavior and generation quality. While quantitative results across metrics are similar, our human study suggests that attention-based scoring produces more promising results for semantically coherent and human-preferred images in low-sampling regimes and realistic image prompts.</p>
         </section>
@@ -211,7 +211,7 @@
                 <p>The noisy latent image is first patchified into image tokens, and the text prompt is made into text tokens. Then, the Multimodal Diffusion Transformer (MMDiT) processes them simultaneously through transformer blocks, with a separate set of weights used for processing each modality. Within each MMDiT block, the joint attention mechanism allows information to flow between image and text tokens within the same attention layers. This enables SD3 to generate images that closely represent the prompt, and hone visual details like backgrounds and lettering [2].</p>
             
             <h3 id="sd3">RAS</h3>
-            <p>Region-Adaptive Sampling (RAS) is a novel, training-free method for accelerating sampling for Diffusion Transformers (DiTs). Many previous sampling acceleration methods rely on reducing the number of overall sampling steps [2]. RAS employs a different approach, reducing computation within each step by updating only a subset of tokens. Because DiTs treat the latent as a sequence of independent tokens with learned positional embeddings, RAS is able to freely prune, reorder, or cache tokens during inference without violating architectural assumptions. 
+            <p>RAS is a novel, training-free method for accelerating sampling for Diffusion Transformers (DiTs). Many previous sampling acceleration methods rely on reducing the number of overall sampling steps [2]. RAS employs a different approach, reducing computation within each step by updating only a subset of tokens. Because DiTs treat the latent as a sequence of independent tokens with learned positional embeddings, RAS is able to freely prune, reorder, or cache tokens during inference without violating architectural assumptions. 
             </p>
             <p>The authors observed that during the sampling process, DiTs exhibit: </p>
             <ul>
