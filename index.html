@@ -240,7 +240,7 @@
             <p>For each of the three scores, we picked our best attention-based contender (explained in 4.1.2.) and compared it against “Vanilla” SD3, Random, Standard Deviation, and Scharr (with the exception of LPIPS, which didn’t include SD3). Both of our notable differences came from the average LPIPS scores. For both sampling ratios, Standard Deviation and Scharr had higher average scores than Random and Attention. In general, all four variants had higher LPIPS scores when they used a sampling ratio of 25%, just like what we saw among the attention variants.</p>
 
             <figure>
-                <img src="./paper_all_results.png" alt="paper_all_results.png">
+                <img src="paper_all_results.png" alt="paper_all_results.png">
                 <figcaption>Box plots for CLIP scores and LPIPS scores across all RAS variants and Stable Diffusion (“Vanilla”). Mean scores for each variant are displayed beneath them in the blue boxes. A & B: CLIP scores; C & D: LPIPS scores; A & C: 25% sampling ratio; B & D: 50% sampling ratio.</figcaption>
             </figure>
             
@@ -257,7 +257,7 @@
 
 
             <figure>
-                <img src="./paper_attn_results.png" alt="paper_attn_results.png">
+                <img src="paper_attn_results.png" alt="paper_attn_results.png">
                 <figcaption>Box plots for CLIP scores and LPIPS scores across attention-based RAS variants. Mean scores for each variant are displayed beneath them in the blue boxes. A & B: CLIP scores; C & D: LPIPS scores; A & C: 25% sampling ratio; B & D: 50% sampling ratio.</figcaption>
             </figure>
 
@@ -266,7 +266,7 @@
             <h4>4.2.1. Human Results</h4>
 
             <figure>
-                <img src="./image_results.png" alt="image_results.png">
+                <img src="image_results.png" alt="image_results.png">
             </figure>
 
             <p>Taking the results from the human survey, we computed two sets of weighted preference scores. In the first grouping, where each RAS variant is compared directly against Vanilla SD3, Vanilla SD3 attains by far the highest score, indicating that none of the sparse sampling strategies surpass full-token sampling. This matches our expectations: when the model can sample all tokens, it has strictly more information than when it is restricted to specific regions. Among the RAS methods, Attention-based sampling degrades performance the least relative to Vanilla SD3, while Scharr and Random lie in the middle, and the standard deviation method performs worst. This ordering appears in Figure 6: with the exception of the second row, the standard deviation method tends to produce the least faithful and least visually pleasing outputs, while Attention and edge-based (Scharr) sampling most closely match the Vanilla SD3 generations.</p>
@@ -274,7 +274,7 @@
             <p>In the second grouping, where scores are computed only from pairwise comparisons between different RAS strategies (excluding Vanilla SD3), Attention again emerges as the strongest method, suggesting that it better matches the textual prompt and produces more visually appealing images than the alternatives. Random performs almost on par with Scharr here, which we hypothesize is because Random sampling often yields visually appealing images, sometimes comparable to Scharr and close to Attention, but can also fail catastrophically on certain scenes. For example, in the second row of Figure 6, Random produces an image that diverges completely from the Vanilla SD3 reference, whereas Scharr remains closer. This suggests that in scenes where foreground and background are less cleanly separated, Random sampling is more likely to miss important regions, while edge-based Scharr sampling can still focus on salient structure. Conversely, Scharr performs worst in the third row, which we attribute to the fact that convolving with a fixed edge kernel can oversmooth or distort fine details, such as the zebra’s head.</p>
 
             <figure>
-                <img src="./survey_results.png" alt="survey_results.png">
+                <img src="survey_results.png" alt="survey_results.png">
             </figure>
 
 
