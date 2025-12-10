@@ -236,9 +236,9 @@
             <p>This motivates our study to extend the RAS method to alternative scoring metrics.</p>
             
             <h3 id="other-diff">Other Diffusion Sampling Acceleration Methods</h3>
-            <p>Outside of RAS, there is substantial work on accelerating inference in diffusion models. Many approaches focus on speeding up the sampling process. Training-based methods such as progressive distillation [3] and rectified flow [4] reduce the number of denoising steps by either distilling a teacher model’s multi-step sampler into a few steps or by learning a deterministic ODE that maps noise directly to data. Non-training methods, including DPM-Solver [3] and DeepCache [4], accelerate sampling through improved numerical integration or by caching intermediate features for reuse across steps. However, these techniques typically treat all spatial regions uniformly during sampling and do not account for spatial variation in how different regions evolve.
+            <p>Outside of RAS, there is substantial work on accelerating inference in diffusion models. Many approaches focus on speeding up the sampling process. Training-based methods such as progressive distillation [3] and rectified flow [4] reduce the number of denoising steps by either distilling a teacher model’s multi-step sampler into a few steps or by learning a deterministic ODE that maps noise directly to data. Non-training methods, including DPM-Solver [5] and DeepCache [6], accelerate sampling through improved numerical integration or by caching intermediate features for reuse across steps. However, these techniques typically treat all spatial regions uniformly during sampling and do not account for spatial variation in how different regions evolve.
             </p>
-            <p>Other approaches aim to reduce computation by modifying the token representation itself. Token merging [5], for example, combines semantically or structurally similar tokens to reduce the number of processed tokens. While effective at lowering computational cost, this merging can lead to information loss over the sampling trajectory.
+            <p>Other approaches aim to reduce computation by modifying the token representation itself. Token merging [7], for example, combines semantically or structurally similar tokens to reduce the number of processed tokens. While effective at lowering computational cost, this merging can lead to information loss over the sampling trajectory.
             </p>
             <p>RAS offers an alternative to these methods, given that it dynamically selects which regions to refine at each sampling step and preserves token representations across steps rather than merging or discarding them.
             </p>
@@ -248,7 +248,7 @@
         <section id="methods">
             <h2>Methods</h2>
             <h3 id="data">Data</h3>
-            <p>We use the MS-COCO 2017 dataset [6], with a similar setup to the original paper. From this dataset, we selected 100 prompt–image pairs. Prompts were chosen according to two criteria: first, the baseline Stable Diffusion 3 model needed to produce reasonably high-quality images for the prompt to ensure meaningful comparisons across sampling methods, and second, the set of prompts should span a wide variety of scene types.
+            <p>We use the MS-COCO 2017 dataset [8], with a similar setup to the original paper. From this dataset, we selected 100 prompt–image pairs. Prompts were chosen according to two criteria: first, the baseline Stable Diffusion 3 model needed to produce reasonably high-quality images for the prompt to ensure meaningful comparisons across sampling methods, and second, the set of prompts should span a wide variety of scene types.
             </p>
 
             <h3 id="archichitectures">RAS Implementation</h3>
