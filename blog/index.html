@@ -194,7 +194,11 @@
         <section id="introduction">
             <h2>Introduction</h2>
 
-            <img src="intro_imgs.png" alt="intro_imgs.png">
+            <figure>
+                <img src="intro_imgs.png" alt="intro_imgs.png">
+                <figcaption><b>Figure 1:</b> Images generated from selective MS-COCO prompts using Stable Diffusion 3 [2] as well as each of the RAS [1] scoring methods.</figcaption>
+            </figure>
+            
             
             <p>Although diffusion models have become prominent in text-to-image generation, they are slow and computationally expensive to run inference with. The denoising process relies on iterative forward passes, where each pass requires attention operations that involve heavy computation across all text and image tokens. This project investigates how different region selection methods influence RAS, a novel diffusion sampling strategy that improves sampling efficiency by updating only a subset of spatial tokens at each step [1]. In the original RAS method, these regions are selected using predicted-noise standard deviation as a scoring heuristic. We explore alternative region-scoring metrics, such as attention-based and edge-based methods, which we believe may better capture semantic importance or fine-grained structure by incorporating more information from attention weights or neighboring tokens.</p>
 
@@ -215,7 +219,10 @@
                 <li>lower variance within channels in predicted noise tokens in foreground regions.</li>
             </ul>
             <p>Building off these insights, RAS computes a score for each image patch at each sampling step based on the standard deviation of the model’s predicted noise. The lowest-std patches are selected as fast-update tokens and passed through the next DiT forward pass, while slow-update tokens are skipped for that step and simply reuse cached noise from the previous iteration. (See Fig. 1) After merging the updated and cached predictions, sampling proceeds normally. To prevent starving any region, RAS tracks drop counts to periodically bump up the scores of neglected patches and inserts occasional dense (full-token) steps to combat accumulated errors.</p>
-            <img src="./ras.png" alt="ras.png" width="500" height="auto">
+            <figure>
+                <img src="./ras.png" alt="ras.png" width="500" height="auto">
+                <figcaption><b>Figure 2:</b> Diagram of RAS [1] architecture.</figcaption>
+            </figure>
             <p>The paper reports that even with a sampling ratio of 0.50 (only 50% of the image patches get updated at each step), RAS produces images with comparable quality while achieving a 1.6x speed up compared to standard full sampling. However, there are some limitations. 
             </p>
             <ul>
@@ -247,7 +254,7 @@
             <h3 id="archichitectures">RAS Implementation</h3>
             <p>We build on the official RAS implementation for Stable Diffusion 3 by modifying the token scoring function used to select fast-update tokens. We evaluate two alternative scoring methods: attention-based and edge-based.</p>
 
-            <a href="https://github.com/azazby/sras-diffusion">Our Github repo is here.</a>
+            <a href="https://github.com/azazby/sras-diffusion">Our Github repo canbe found here.</a>
             
             <h4>How RAS selects tokens</h4>
                 <ul>
@@ -389,7 +396,7 @@
 
             <figure>
                 <img src="paper_all_results.png" alt="paper_all_results.png">
-                <figcaption>Box plots for CLIP scores and LPIPS scores across all RAS variants and Stable Diffusion (“Vanilla”). Mean scores for each variant are displayed beneath them in the blue boxes. A & B: CLIP scores; C & D: LPIPS scores; A & C: 25% sampling ratio; B & D: 50% sampling ratio.</figcaption>
+                <figcaption><b>Figure 3:</b> Box plots for CLIP scores and LPIPS scores across all RAS variants and Stable Diffusion (“Vanilla”). Mean scores for each variant are displayed beneath them in the blue boxes. A & B: CLIP scores; C & D: LPIPS scores; A & C: 25% sampling ratio; B & D: 50% sampling ratio.</figcaption>
             </figure>
             
             <h4>4.1.2. Best-performing attention RAS variants</h4>
@@ -406,7 +413,7 @@
 
             <figure>
                 <img src="paper_attn_results.png" alt="paper_attn_results.png">
-                <figcaption>Box plots for CLIP scores and LPIPS scores across attention-based RAS variants. Mean scores for each variant are displayed beneath them in the blue boxes. A & B: CLIP scores; C & D: LPIPS scores; A & C: 25% sampling ratio; B & D: 50% sampling ratio.</figcaption>
+                <figcaption><b>Figure 4:</b> Box plots for CLIP scores and LPIPS scores across attention-based RAS variants. Mean scores for each variant are displayed beneath them in the blue boxes. A & B: CLIP scores; C & D: LPIPS scores; A & C: 25% sampling ratio; B & D: 50% sampling ratio.</figcaption>
             </figure>
 
             <h3>4.2. Qualitative Results</h3>
@@ -415,10 +422,12 @@
 
             <figure>
                 <img src="survey_results.png" alt="survey_results.png">
+                <figcaption><b>Figure 5:</b> Table with the scores from the human study. We first compare each scoring method’s performance to Vanilla SD3. We then compare the methods against each other directly. For both methods, we use the weighted preference score described earlier. </figcaption>
             </figure>
 
             <figure>
                 <img src="image_results.png" alt="image_results.png">
+                <figcaption><b>Figure 6:</b> Images comparing the performance of Vanilla SD3 and each scoring method. The prompts for rows 2 and 4 were used in the human survey.</figcaption>
             </figure>
 
             <p>Taking the results from the human survey, we computed two sets of weighted preference scores. In the first grouping, where each RAS variant is compared directly against Vanilla SD3, Vanilla SD3 attains by far the highest score, indicating that none of the sparse sampling strategies surpass full-token sampling. This matches our expectations: when the model can sample all tokens, it has strictly more information than when it is restricted to specific regions. Among the RAS methods, Attention-based sampling degrades performance the least relative to Vanilla SD3, while Scharr and Random lie in the middle, and the standard deviation method performs worst. This ordering appears in Figure 6: with the exception of the second row, the standard deviation method tends to produce the least faithful and least visually pleasing outputs, while Attention and edge-based (Scharr) sampling most closely match the Vanilla SD3 generations.</p>
