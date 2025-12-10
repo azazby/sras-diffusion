@@ -425,6 +425,17 @@
 
         </section>
 
+        <section id="Discussion">
+            <h2>5. Discussion</h2>
+            <h3>5.1 Key Takeaways</h3>
+            <p>Our evaluations raises the question: is our attention-based scoring metric a promising alternative to the standard deviation metric used in RAS [1]?</p>
+            <p>Although our RAS variants (plus SD3) didn’t have CLIP/LPIPS/LAION scores that were notably different from each other, our results point to two observations. First, averaging across attention blocks 6-8 lead to better results than Blocks 8-10, and we hypothesize that blocks within the middle of the denoising process may contain more useful information that focuses on both holistic patterns and fine details in an image, whereas later blocks will contain more information about fine details. Second, LPIPS scores were generally higher for metrics that used a 25% sampling ratio of text-to-image tokens. This may be because the RAS model was able to allocate more of its computation towards image-related information, which may have allowed it to produce outputs that were more perceptually similar to SD3’s.</p> 
+            
+            <h4>5.2 Limitations and Future Work</h4>
+            <p>Even though CLIP score is widely used for measuring image-prompt alignment, and LPIPS is used for image-image similarity, it is worth exploring whether CLIP and LPIPS are sufficient for evaluating the visual quality of a generative image model. Because LPIPS requires a set of reference images to compare results against, the scores are biased and not standardized. Common metrics like FID (Frechet Inception Distance) experience a similar limitation. For a more thorough comparison of RAS variants, we would like to explore unbiased and sample-efficient evaluations, such as CMMD [12].</p>
+            <p>Although the human study provides interesting preliminary results, it has several limitations. First, the study only included 15 prompts, which restricts our ability to generalize preferences across the full diversity of MS-COCO. Specifically, practical limits on survey length prevented us from evaluating a larger prompt set. Second, the survey was conducted in two parts due to missing comparisons in the initial version, resulting in uneven participant counts. To mitigate this, we aggregated preferences on a per-comparison basis and normalized scores, but the discrepancy in sample sizes may still introduce additional variance. Third, although a randomized prompt selection would reduce potential selection bias, it would require a substantially larger prompt set than was practical for our survey design, as mentioned earlier. Given more time, we would aim to include more prompts and increase the number of comparisons between methods within each prompt.</p>
+        </section>
+
 
         <section id="references">
             <h2 id="references">References</h2>
