@@ -1,6 +1,6 @@
-# Selective Regional Adaptive Sampling for Diffusion Models
+# Selective Region-Adaptive Sampling for Diffusion Models
 
-Exploring region selection strategies for improving Region-Adaptive Sampling (RAS) for diffusion transformers.
+Exploring region selection strategies for extending Region-Adaptive Sampling (RAS) for diffusion transformers.
 
 This project investigates how different region selection methods influence RAS, a novel diffusion sampling strategy that improves sampling efficiency by allocating more updates to fast-update regions. 
 In the original RAS method, these regions are selected using predicted-noise standard deviation as a scoring heuristic. 
