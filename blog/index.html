@@ -334,7 +334,7 @@
             <h3 id="#quant">Quantitative Evaluation of Results</h3>
             <p>We used CLIP (Contrastive Language-Image Pre-training), LPIPS (Learned Perceptual Image Patch Similarity), and LAION-AI’s Aesthetic Predictor V1 to evaluate the quality of our generated images. All of our quantitative measures were run with NVIDIA A100 80GB GPU.
             </p>
-            <p>CLIP Score: “On a scale of 0-1, how well did our output match the prompt?”
+            <p><b>CLIP Score:</b> “On a scale of 0-1, how well did our output match the prompt?”
             </p>
             <ul>
                     <li>Measures how well a generated image matches its prompt, where a higher score means better alignment [9]. We used a ViT-B/32 Transformer architecture, which was jointly trained with an image encoder and text encoder to measure the cosine similarity between image and text embeddings, optimizing for image-text pairs that contextually fit each other best.
@@ -342,7 +342,7 @@
             </ul>
 
  
-            <p>LPIPS: “On a scale of 0-1, how much is our output visually different from Stable Diffusion’s output?”
+            <p><b>LPIPS:</b> “On a scale of 0-1, how much is our output visually different from Stable Diffusion’s output?”
             </p>
             <ul>
                     <li>Uses deep networks to measure the perceptual similarity between two images, where a lower score means higher similarity. Cosine distance is used to compute the score [10]. We compared our RAS variants against Stable Diffusion 3.
@@ -350,7 +350,7 @@
                     <li>“Perceptual similarity” means “how similar two things are based on human judgment,” rather than making a purely statistical comparison like PSNR (Peak Signal-to-Noise Ratio) and SSIM (Structural Similarity Index Measure) [10].
                     </li>
             </ul>
-            <p>LAION-AI Aesthetic Predictor: “On a scale of 0-10, how aesthetically pleasing is our output?”
+            <p><b>LAION-AI Aesthetic Predictor:</b> “On a scale of 0-10, how aesthetically pleasing is our output?”
             </p>
             <ul>
                 <li>
@@ -428,7 +428,7 @@
         <section id="discussion">
             <h2 id="discussion">5. Discussion</h2>
             <h3>5.1 Key Takeaways</h3>
-            <p>Our evaluations raises the question: is our attention-based scoring metric a promising alternative to the standard deviation metric used in RAS [1]?</p>
+            <p>Our evaluations raise the question: is our attention-based scoring metric a promising alternative to the standard deviation metric used in RAS [1]?</p>
             <p>Although our RAS variants (plus SD3) didn’t have CLIP/LPIPS/LAION scores that were notably different from each other, our results point to two observations. First, averaging across attention blocks 6-8 lead to better results than Blocks 8-10, and we hypothesize that blocks within the middle of the denoising process may contain more useful information that focuses on both holistic patterns and fine details in an image, whereas later blocks will contain more information about fine details. Second, LPIPS scores were generally higher for metrics that used a 25% sampling ratio of text-to-image tokens. This may be because the RAS model was able to allocate more of its computation towards image-related information, which may have allowed it to produce outputs that were more perceptually similar to SD3’s.</p> 
             
             <h4>5.2 Limitations and Future Work</h4>
