@@ -412,6 +412,10 @@
             <h4>4.2.1. Human Results</h4>
 
             <figure>
+                <img src="survey_results.png" alt="survey_results.png">
+            </figure>
+
+            <figure>
                 <img src="image_results.png" alt="image_results.png">
             </figure>
 
@@ -419,9 +423,8 @@
 
             <p>In the second grouping, where scores are computed only from pairwise comparisons between different RAS strategies (excluding Vanilla SD3), Attention again emerges as the strongest method, suggesting that it better matches the textual prompt and produces more visually appealing images than the alternatives. Random performs almost on par with Scharr here, which we hypothesize is because Random sampling often yields visually appealing images, sometimes comparable to Scharr and close to Attention, but can also fail catastrophically on certain scenes. For example, in the second row of Figure 6, Random produces an image that diverges completely from the Vanilla SD3 reference, whereas Scharr remains closer. This suggests that in scenes where foreground and background are less cleanly separated, Random sampling is more likely to miss important regions, while edge-based Scharr sampling can still focus on salient structure. Conversely, Scharr performs worst in the third row, which we attribute to the fact that convolving with a fixed edge kernel can oversmooth or distort fine details, such as the zebra’s head.</p>
 
-            <figure>
-                <img src="survey_results.png" alt="survey_results.png">
-            </figure>
+            <p>Finally, we note that our overall goal is to generate high-quality images faster than vanilla SD3. The original RAS paper reports that the Standard Deviation strategy achieves a throughput 1.6× higher than Vanilla SD3. Our Attention method uses more memory, so in our setup it reaches a slightly lower speedup of 1.5×, while edge-based methods, which add an extra convolution, run at approximately the same speed as Vanilla SD3. Even so, we believe these variants are worth exploring further, given the preliminary evidence that they can improve image quality relative to the baseline.</p>
+
 
 
         </section>
