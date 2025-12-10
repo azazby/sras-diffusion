@@ -193,6 +193,8 @@
 
         <section id="introduction">
             <h2>Introduction</h2>
+
+            <img src="intro_imgs.png" alt="intro_imgs.png">
             
             <p>Although diffusion models have become prominent in text-to-image generation, they are slow and computationally expensive to run inference with. The denoising process relies on iterative forward passes, where each pass requires attention operations that involve heavy computation across all text and image tokens. This project investigates how different region selection methods influence RAS, a novel diffusion sampling strategy that improves sampling efficiency by updating only a subset of spatial tokens at each step [1]. In the original RAS method, these regions are selected using predicted-noise standard deviation as a scoring heuristic. We explore alternative region-scoring metrics, such as attention-based and edge-based methods, which we believe may better capture semantic importance or fine-grained structure by incorporating more information from attention weights or neighboring tokens.</p>
 
