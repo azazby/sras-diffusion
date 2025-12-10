@@ -1,1 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MolGraph-DDI: Exploring Molecular Graphs for Drug-Drug Interaction Prediction</title>
+    <style>
 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .article {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .metadata {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        section {
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 0.5rem;
+            margin-top: 2rem;
+        }
+
+        h3 {
+            color: #34495e;
+            margin-top: 1.5rem;
+            font-size: 1.3rem;
+        }
+
+
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .references {
+            border-top: 2px solid #eee;
+            margin-top: 3rem;
+            padding-top: 1rem;
+        }
+
+        .references ol {
+            padding-left: 1.5rem;
+        }
+
+        .references li {
+            margin-bottom: 0.5rem;
+            position: relative;
+            padding-left: 0.5rem;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .article {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+
+        .toc {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 2rem;
+        }
+
+        .toc ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .toc > ul > li {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .toc > ul > li > a {
+            color: #2c3e50;
+        }
+
+        .toc li ul {
+            padding-left: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .toc li ul li {
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+            font-weight: normal;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .metadata {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+
+        .citation {
+            font-size: 0.8em;
+            vertical-align: super;
+            color: #3498db;
+            text-decoration: none;
+            margin: 0 2px;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 1rem auto;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            .article {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <article class="article">
+        <header class="header">
+            <h1>MolGraph-DDI: Exploring Molecular Graphs for Drug-Drug Interaction Prediction</h1>
+            <div class="metadata">
+                <span>Published on: December 10, 2024</span>
+                <span> • </span>
+                <span>By: Nethaka Dassanayake, Yiqing Du, and Isamar Zhu</span>
+            </div>
+        </header>
+
+        <nav class="toc">
+            <h2>Table of Contents</h2>
+            <ul>
+                <li>
+                    <a href="#introduction">Introduction</a>
+                    <ul>
+                        <li><a href="#motivations">Motivations</a></li>
+                        <li><a href="#past-works">Past Works</a></li>
+                        <li><a href="#goals">Goals</a></li>
+                    </ul>
+                </li>
+                <li><a href="#methods">Methods</a>
+                    <ul>
+                        <li><a href="#data">Data</a></li>
+                        <li><a href="#archichitectures">Architectures</a></li>
+                        <li><a href="#training">Training</a></li>
+                        <li><a href="#evalutation">Evaluation</a></li>
+                    </ul>
+                
+                </li>
+                <li><a href="#results">Results</a></li>
+                <li><a href="#discussion">Discussion</a>
+                    <ul>
+                        <li><a href="#limitations">Limitations</a></li>
+                        <li><a href="#implications">Implications</a></li>
+                    </ul>
+                </li>
+                <li><a href="#references">References</a></li>
+            </ul>
+        </nav>
+
+        <section id="results">
+            <h2>4. Results</h2>
+            <h3>4.1. Quantitative image quality comparison</h3>
+            <p>Our best attention variants performed similarly to its other variants for CLIP and LAION, while doing slightly worse for LPIPS.</p>
+
+            <p>Our quantitative results were guided by two questions:</p>
+
+            <ol>
+                <li>Which attention RAS variant performed the best?</li>
+                <li>How well did our best attention variant perform against the random, standard deviation, and edge-detection (Scharr) variants?</li>
+            </ol>
+
+            <h4>4.1.1. All RAS variants + SD3</h4>
+            <p>Across our three scores (CLIP, LPIPS, LAION), our chosen attention variants were not that significantly different from their competitors. In fact, all of our variants weren’t significantly different from each other!</p>
+            
+            <p>For each of the three scores, we picked our best attention-based contender (explained in 4.1.2.) and compared it against “Vanilla” SD3, Random, Standard Deviation, and Scharr (with the exception of LPIPS, which didn’t include SD3). Both of our notable differences came from the average LPIPS scores. For both sampling ratios, Standard Deviation and Scharr had higher average scores than Random and Attention. In general, all four variants had higher LPIPS scores when they used a sampling ratio of 25%, just like what we saw among the attention variants.</p>
+
+            <figure>
+                <img src="./paper_all_results.png" alt="paper_all_results.png">
+                <figcaption>Box plots for CLIP scores and LPIPS scores across all RAS variants and Stable Diffusion (“Vanilla”). Mean scores for each variant are displayed beneath them in the blue boxes. A & B: CLIP scores; C & D: LPIPS scores; A & C: 25% sampling ratio; B & D: 50% sampling ratio.</figcaption>
+            </figure>
+            
+            <h4>4.1.2. Best-performing attention RAS variants</h4>
+            <p>For each score, our attention variants didn’t have significantly different results from each other. However, we noticed that variants that used Blocks 6-8 had higher average scores than variants that used Blocks 8-10. Also, variants that used a sampling ratio of 25% noticeably had higher LPIPS scores than variants with 50% sampling ratio, by a difference of ~0.05 on average.</p>
+
+            <p>Our winners for each evaluation, by average score:</p>
+
+            <ul>
+                <li><b>CLIP:</b> Attn Blocks 6-8, sr = 25, hr=30</li>
+                <li><b>LPIPS:</b> Attn Blocks 6-8, sr = 25, hr=10</li>
+                <li><b>LAION:</b> Attn Blocks 6-8, sr = 50, hr=10</li>
+            </ul>
+
+
+            <figure>
+                <img src="./paper_attn_results.png" alt="paper_attn_results.png">
+                <figcaption>Box plots for CLIP scores and LPIPS scores across attention-based RAS variants. Mean scores for each variant are displayed beneath them in the blue boxes. A & B: CLIP scores; C & D: LPIPS scores; A & C: 25% sampling ratio; B & D: 50% sampling ratio.</figcaption>
+            </figure>
+
+            <h3>4.2. Qualitative Results</h3>
+
+            <h4>4.2.1. Human Results</h4>
+
+            <figure>
+                <img src="./image_results.png" alt="image_results.png">
+            </figure>
+
+            <p>Taking the results from the human survey, we computed two sets of weighted preference scores. In the first grouping, where each RAS variant is compared directly against Vanilla SD3, Vanilla SD3 attains by far the highest score, indicating that none of the sparse sampling strategies surpass full-token sampling. This matches our expectations: when the model can sample all tokens, it has strictly more information than when it is restricted to specific regions. Among the RAS methods, Attention-based sampling degrades performance the least relative to Vanilla SD3, while Scharr and Random lie in the middle, and the standard deviation method performs worst. This ordering appears in Figure 6: with the exception of the second row, the standard deviation method tends to produce the least faithful and least visually pleasing outputs, while Attention and edge-based (Scharr) sampling most closely match the Vanilla SD3 generations.</p>
+
+            <p>In the second grouping, where scores are computed only from pairwise comparisons between different RAS strategies (excluding Vanilla SD3), Attention again emerges as the strongest method, suggesting that it better matches the textual prompt and produces more visually appealing images than the alternatives. Random performs almost on par with Scharr here, which we hypothesize is because Random sampling often yields visually appealing images, sometimes comparable to Scharr and close to Attention, but can also fail catastrophically on certain scenes. For example, in the second row of Figure 6, Random produces an image that diverges completely from the Vanilla SD3 reference, whereas Scharr remains closer. This suggests that in scenes where foreground and background are less cleanly separated, Random sampling is more likely to miss important regions, while edge-based Scharr sampling can still focus on salient structure. Conversely, Scharr performs worst in the third row, which we attribute to the fact that convolving with a fixed edge kernel can oversmooth or distort fine details, such as the zebra’s head.</p>
+
+            <figure>
+                <img src="./survey_results.png" alt="survey_results.png">
+            </figure>
+
+
+        </section>
+
+
+        <section id="references">
+            <h2 id="references">References</h2>
+            <ol>
+                <li id="ref1">Z. Liu, Y. Yang, C. Zhang, Y. Zhang, L. Qiu, Y. You and Y. Yang, “Region-Adaptive Sampling for Diffusion Transformers,” arXiv preprint arXiv:2502.10389, 2025.</li>
+                <li id="ref2">P. Esser et al., “Scaling rectified flow transformers for high-resolution image synthesis,” in Proc. 41st Int. Conf. Mach. Learn. (ICML’24), Vienna, Austria, 2024, pp. 503–530.</li>
+                <li id="ref3">Chitwan Saharia, William Chan, Huiwen Chang, Chris Lee, Jonathan Ho, Tim Salimans, David Fleet, and Mohammad Norouzi. Palette: Image-to-image diffusion models. In ACM SIGGRAPH 2022 conference proceedings, pages 1–10, 2022.</li>
+                <li id="ref4">Michael S Albergo and Eric Vanden-Eijnden. Building normalizing flows with stochastic interpolants. arXiv preprint arXiv:2209.15571, 2022. 2023, pp. 4599–4608.</li>
+                <li id="ref5">Cheng Lu, Yuhao Zhou, Fan Bao, Jianfei Chen, Chongxuan Li, and Jun Zhu. Dpm-solver: A fast ode solver for diffusion probabilistic model sampling in around 10 steps. Advances in Neural Information Processing Systems, 35:5775–5787, 2022. 1, 4</li>
+                <li id="ref6">Mengwei Xu, Mengze Zhu, Yunxin Liu, Felix Xiaozhu Lin, and Xuanzhe Liu. Deepcache: Principled cache for mobile deep vision. In Proceedings of the 24th annual international conference on mobile computing and networking, pages 129–144, 2018.</li>
+                <li id="ref7">D. Bolya and J. Hoffman, “Token Merging for Fast Stable Diffusion,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops (CVPRW)</li>
+                <li id="ref8">Tsung-Yi Lin, Michael Maire, Serge Belongie, James Hays, Pietro Perona, Deva Ramanan, Piotr Dollar, and C Lawrence ´ Zitnick. Microsoft coco: Common objects in context. In Computer Vision–ECCV 2014: 13th European Conference, Zurich, Switzerland, September 6-12, 2014, Proceedings, Part V 13, pages 740–755. Springer, 2014.</li>
+                <li id="ref9">A. Radford, J. W. Kim, C. Hallacy, A. Ramesh, G. Goh, S. Agarwal, G. Sastry, A. Askell, P. Mishkin, J. Clark, G. Krueger and I. Sutskever, “Learning Transferable Visual Models From Natural Language Supervision,” arXiv preprint arXiv:2103.00020, 2021.</li>
+                <li id="ref10">R. Zhang, P. Isola, A. A. Efros, E. Shechtman and O. Wang, “The Unreasonable Effectiveness of Deep Features as a Perceptual Metric,” in Proc. 2018 IEEE/CVF Conf. Computer Vision and Pattern Recognition (CVPR), 2018, pp. 586–595.</li>
+                <li id="ref11">“LAION-AI/aesthetic-predictor,” GitHub repository, [Online]. Available: https://github.com/LAION-AI/aesthetic-predictor.</li>
+                <li id="ref12">S. Jayasumana, S. Ramalingam, A. Veit, D. Glasner, A. Chakrabarti, and S. Kumar, "Rethinking FID: Towards a better evaluation metric for image generation," arXiv preprint arXiv:2401.09603, 2024.</li>
+            </ol>
+        </section>
+    </article>
+</body>
+</html>
