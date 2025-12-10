@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MolGraph-DDI: Exploring Molecular Graphs for Drug-Drug Interaction Prediction</title>
+    <title>Selective Regional Adaptive Sampling for Diffusion Models: Exploring Region Scoring Methods</title>
     <style>
 
         body {
@@ -183,11 +183,11 @@
 <body>
     <article class="article">
         <header class="header">
-            <h1>MolGraph-DDI: Exploring Molecular Graphs for Drug-Drug Interaction Prediction</h1>
+            <h1>Selective Regional Adaptive Sampling: Exploring Region Scoring Methods Efficient Diffusion Sampling</h1>
             <div class="metadata">
-                <span>Published on: December 10, 2024</span>
+                <span>Published on: December 9, 2025</span>
                 <span> • </span>
-                <span>By: Nethaka Dassanayake, Yiqing Du, and Isamar Zhu</span>
+                <span>By: Jessica Lu, Jenny Baek, and Cynthia Cao</span>
             </div>
         </header>
 
@@ -196,18 +196,21 @@
             <ul>
                 <li>
                     <a href="#introduction">Introduction</a>
+                </li>
+                <li><a href="#relevant-work">Relevant Work</a>
                     <ul>
-                        <li><a href="#motivations">Motivations</a></li>
-                        <li><a href="#past-works">Past Works</a></li>
-                        <li><a href="#goals">Goals</a></li>
+                        <li><a href="#sd3">Stable Diffusion 3</a></li>
+                        <li><a href="#ras">RAS</a></li>
+                        <li><a href="#other-diff">Other Diffusion Sampling Acceleration Methods</a></li>
                     </ul>
                 </li>
                 <li><a href="#methods">Methods</a>
                     <ul>
                         <li><a href="#data">Data</a></li>
-                        <li><a href="#archichitectures">Architectures</a></li>
-                        <li><a href="#training">Training</a></li>
-                        <li><a href="#evalutation">Evaluation</a></li>
+                        <li><a href="#archichitectures">RAS Implementation</a></li>
+                        <li><a href="#prelim">Preliminary Experiments</a></li>
+                        <li><a href="#custom-scoring">Our Custom Scoring Methods</a></li>
+                        <li><a href="#quant">Quantitative Evaluation of Results</a></li>
                     </ul>
                 
                 </li>
@@ -221,6 +224,182 @@
                 <li><a href="#references">References</a></li>
             </ul>
         </nav>
+
+        <section id="introduction">
+            <h2>Introduction</h2>
+            
+            <p>Although diffusion models have become prominent in text-to-image generation, they are slow and computationally expensive to run inference with. The denoising process relies on iterative forward passes, where each pass requires attention operations that involve heavy computation across all text and image tokens. This project investigates how different region selection methods influence Regional Adaptive Sampling (RAS) [1]</a>, a novel diffusion sampling strategy that improves sampling efficiency by updating only a subset of spatial tokens at each step. In the original RAS method, these regions are selected using predicted-noise standard deviation as a scoring heuristic. 
+            </p>
+            <p> We demonstrate that std is a brittle scoring metric for the RAS method, particularly at low sampling ratios and on realistic, multi-object prompts, often failing to prioritize semantically meaningful regions. We explore alternative region-scoring metrics that may better capture semantic importance or fine-grained structure, including attention-based and edge-based methods. We evaluate how these metrics influence token-selection behavior and generation quality. While quantitative results across metrics are similar, our human study indicates that attention-based scoring produces more promising results for semantically coherent and human-preferred images in low-sampling regimes and realistic image prompts.
+                
+            </p>
+        </section>
+
+        <section id="relevant-work">
+            <h2>Relevant Work</h2>
+            <h3 id="sd3">Stable Diffusion 3</h3>
+                <p>The noisy latent image is first patchified into image tokens, and the text prompt is made into text tokens. Then, the Multimodal Diffusion Transformer (MMDiT) processes them simultaneously through transformer blocks, with a separate set of weights used for processing each modality. Within each MMDiT block, the joint attention mechanism allows information to flow between image and text tokens within the same attention layers. This enables SD3 to generate images that closely represent the prompt, and hone visual details like backgrounds and lettering [2].</p>
+            
+            <h3 id="sd3">RAS</h3>
+            <p>Region-Adaptive Sampling (RAS) is a novel, training-free method for accelerating sampling for Diffusion Transformers (DiTs). Many previous sampling acceleration methods rely on reducing the number of overall sampling steps [2]. RAS employs a different approach, reducing computation within each step by updating only a subset of tokens. Because DiTs treat the latent as a sequence of independent tokens with learned positional embeddings, RAS is able to freely prune, reorder, or cache tokens during inference without violating architectural assumptions. 
+            </p>
+            <p>The authors observed that during the sampling process, DiTs exhibit: </p>
+            <ul>
+                <li>temporal continuity: regions receiving the strongest updates tend to remain important across adjacent steps.</li>
+                <li>lower variance within channels in predicted noise tokens in foreground regions.</li>
+            </ul>
+            <p>Building off these insights, RAS computes a score for each image patch at each sampling step based on the standard deviation of the model’s predicted noise. The lowest-std patches are selected as fast-update tokens and passed through the next DiT forward pass, while slow-update tokens are skipped for that step and simply reuse cached noise from the previous iteration. (See Fig. 1) After merging the updated and cached predictions, sampling proceeds normally. To prevent starving any region, RAS tracks drop counts to periodically bump up the scores of neglected patches and inserts occasional dense (full-token) steps to combat accumulated errors.</p>
+            <img src="./ras.png" alt="ras.png" width="500" height="auto">
+            <p>The paper reports that even with a sampling ratio of 0.50 (only 50% of the image patches get updated at each step), RAS produces images with comparable quality while achieving a 1.6x speed up compared to standard full sampling. However, there are some limitations. 
+            </p>
+            <ul>
+                <li>The std scoring metric may correlate with foreground structure, but it does not necessarily capture semantic importance. 
+                </li>
+                <li>It scores each token independently and does not consider token-to-token relationships. 
+                </li>
+                <li>Images with multiple foreground objects or heavy texture may have ambiguous noise patterns, making region selection less reliable. 
+                </li>
+            </ul>
+            <p>This motivates our study to extend the RAS method to alternative scoring metrics.</p>
+            
+            <h3 id="other-diff">Other Diffusion Sampling Acceleration Methods</h3>
+            <p>Outside of RAS, there is substantial work on accelerating inference in diffusion models. Many approaches focus on speeding up the sampling process. Training-based methods such as progressive distillation [1] and rectified flow [2] reduce the number of denoising steps by either distilling a teacher model’s multi-step sampler into a few steps or by learning a deterministic ODE that maps noise directly to data. Non-training methods, including DPM-Solver [3] and DeepCache [4], accelerate sampling through improved numerical integration or by caching intermediate features for reuse across steps. However, these techniques typically treat all spatial regions uniformly during sampling and do not account for spatial variation in how different regions evolve.
+            </p>
+            <p>Other approaches aim to reduce computation by modifying the token representation itself. Token merging [5], for example, combines semantically or structurally similar tokens to reduce the number of processed tokens. While effective at lowering computational cost, this merging can lead to information loss over the sampling trajectory.
+            </p>
+            <p>RAS offers an alternative to these methods, given that it dynamically selects which regions to refine at each sampling step and preserves token representations across steps rather than merging or discarding them.
+            </p>
+
+        </section>
+
+        <section id="methods">
+            <h2>Methods</h2>
+            <h3 id="data">Data</h3>
+            <p>We use the MS-COCO 2017 dataset [6], with a similar setup to the original paper. From this dataset, we selected 100 prompt–image pairs. Prompts were chosen according to two criteria: first, the baseline Stable Diffusion 3 model needed to produce reasonably high-quality images for the prompt to ensure meaningful comparisons across sampling methods, and second, the set of prompts should span a wide variety of scene types.
+            </p>
+
+            <h3 id="archichitectures">RAS Implementation</h3>
+            <p>We build on the official RAS implementation for Stable Diffusion 3 by modifying the token scoring function used to select fast-update tokens. We evaluate two alternative scoring methods: attention-based and edge-based.</p>
+
+            <h4>How RAS selects tokens</h4>
+                <ul>
+                    <li>At each selective sampling step, tokens are ranked by a scalar score.
+                    </li>
+                    <li>A user-defined parameter sampling_ratio determines what fraction of tokens receive updates.
+                    </li>
+                    <li>The original paper computes scores using the per-token standard deviation across channels of the predicted noise from the previous step.
+                    </li>
+                </ul>
+            <h4>Starvation Prevention</h4>
+            <p>RAS also performs starvation prevention, where they combat against some tokens rarely or never updating. They do 3 things to accomplish this.
+            </p>
+            <ul>
+                <li>drop_count weighted score function. 
+                    <ul>
+                    <li>RAS tracks how many times each token has been dropped and rescales score.</li>
+                    <li>
+                        <img src="./ras_score_eq.png" alt="ras_score_eq.png" width="200" height="auto" style="display:block; margin-left:0;">
+                    </li>
+                    </ul>
+                </li>
+                <li>
+                    high_ratio exploration.
+                    <ul>
+                    <li>Each step selects a mixture of top-scoring and low-scoring tokens. (high_ratio = 0.3 means 70% highest scoring + 30% lowest scoring tokens are selected.)
+                    </li>
+                    </ul>
+                </li>
+                <li>error_reset_steps
+                    <ul>
+                    <li>Specified sampling steps where all tokens are updated.
+                    </li>
+                    </ul>
+                </li>
+                </ul>
+            <h4>RAS settings used in experiments: </h4>
+            <p>(best-performing settings reported in the paper)</p>
+            <ul>
+                    <li>num_inference_steps = 28
+                    </li>
+                    <li>RAS sampling begins at step 4
+                    </li>
+                    <li>error_reset_steps = {12, 20} 
+                    </li>
+                    <li>high_ratio = 0.30 </li>
+            </ul>
+
+            <h3 id="prelim">Preliminary Experiments</h3>
+            <h4> Evaluating RAS-std at Low Sampling Ratios</h4>
+            <p>As a baseline, we compare the original RAS scoring metric (predicted-noise std) against a random-token selection baseline at low sampling ratios (50%, 25%). Across several MS-COCO prompts, we visually inspect the outputs and observe that RAS-std often performs similarly to RAS-random. In multi-object or more realistic scenes, RAS-std is often worse, producing blurred or unstable foreground objects. These results suggest that std is a weak proxy for semantic importance, motivating alternative scoring functions.</p>
+            <h4>Inspecting Attention Maps in SD3</h4>
+            <p>We visualize attention maps from several SD3 transformer blocks to understand whether attention patterns correspond to semantically important regions. We observe that some blocks (especially early-mid layers, 6-10) highlight consistent semantic regions such as faces, animals, and main objects, while others emphasize primarily structural edges. This suggests that attention may provide a stronger, more semantically grounded scoring signal than std. These insights inform our choice of attention blocks for our custom scoring method.
+            </p>
+
+            <h3 id="custom-scoring">Our Custom Scoring Methods</h3>
+            <h4>Attention-Based Scoring</h4>
+            <p>Transformer attention reveals which tokens are most influential when predicting noise. We hypothesize that tokens that many other tokens attend to correspond to semantically important regions and are a good proxy for what tokens in the image should be updated more frequently. 
+            </p>
+            <p>SD3 uses joint attention, where each block performs self-attention over both image and text tokens, meaning noise latent tokens and prompt embeddings are concatenated before computing. 
+            </p>
+            <img src="./attn_eq.png" alt="attn_eq.png" width="200" height="auto">
+            <p>where Q and K are the query and key projections of all tokens, and A has one row per query and one column per key.</p>
+            <p>We define an attention-based score for each image token as the column-wise sum of the attention matrix over all query tokens. 
+            For each image token j:
+            </p>
+            <img src="./attn_score.png" alt="attn_score.png" width="180" height="auto">
+            
+            <p>We aggregate this score across heads and selected attention blocks.
+            </p>
+            <p>We explore 4 RAS-attn variants, including block groups: {6,7,8} vs. {8,9,10} and high_ratio: 0.30 vs. 0.10. Different transformer blocks are known to specialize in different aspects of the representation (e.g., global layout vs. fine detail), which is supported by our preliminary study. We also hypothesize that attention provides a sharper signal, and thus a smaller exploration term might be needed for optimal performance. 
+            </p>
+
+            <p><em>Note: our attention-based metric introduces a modest computational overhead. SD3 often uses FlashAttention, which bypasses explicitly calculating the full attention matrix at once for efficient GPU computation. However, to obtain attention scores, we must calculate the full attention matrix A for selected blocks at RAS steps. 
+            </em></p>
+            <p><em>In RAS, only fast-update tokens produce new Q, K, V, while slow-update keys/values come from the cache. Thus, for RAS, the key tokens include both image tokens and text tokens, and the query tokens include only the fast-update image tokens plus text tokens. Thus, for a given step, A has shape ((sampling_ratio*N)+P)×(N+P), where N is the number of image tokens and  P is the number of text tokens. 
+            </em></p>
+
+            <h4>Edge-Based Scoring
+            </h3>
+            <p>We additionally explored an edge-based scoring metric using Sobel and Scharr filters. These kernels estimate local spatial gradients, so they highlight regions where image intensity changes sharply. By incorporating gradient information, RAS can use not only per-token metrics but also structural cues from nearby tokens. Given that edges typically correspond to semantically meaningful structures, an edge-based scoring method might more effectively allow RAS to choose the best regions to focus on.
+            </p>
+            <p>In our edge-based scoring method, we apply standard edge-detection filters to each channel of the feature map and compute the L2 norm across channels to obtain a single scalar score per token. After patchifying the image, we rank patches according to this score in descending order. We experimented with both Sobel and Scharr filters, and found that Scharr produced better results, likely due to its improved rotational symmetry and more accurate gradient estimation.
+            </p>
+
+            <h3 id="#quant">Quantitative Evaluation of Results</h3>
+            <p>We used CLIP (Contrastive Language-Image Pre-training), LPIPS (Learned Perceptual Image Patch Similarity), and LAION-AI’s Aesthetic Predictor V1 to evaluate the quality of our generated images. All of our quantitative measures were run with NVIDIA A100 80GB GPU.
+            </p>
+            <p>CLIP Score: “On a scale of 0-1, how well did our output match the prompt?”
+            </p>
+            <ul>
+                    <li>Measures how well a generated image matches its prompt, where a higher score means better alignment [9]. We used a ViT-B/32 Transformer architecture, which was jointly trained with an image encoder and text encoder to measure the cosine similarity between image and text embeddings, optimizing for image-text pairs that contextually fit each other best.
+                    </li>
+            </ul>
+
+ 
+            <p>LPIPS: “On a scale of 0-1, how much is our output visually different from Stable Diffusion’s output?”
+            </p>
+            <ul>
+                    <li>Uses deep networks to measure the perceptual similarity between two images, where a lower score means higher similarity. Cosine distance is used to compute the score [10]. We compared our RAS variants against Stable Diffusion 3.
+                    </li>
+                    <li>“Perceptual similarity” means “how similar two things are based on human judgment,” rather than making a purely statistical comparison like PSNR (Peak Signal-to-Noise Ratio) and SSIM (Structural Similarity Index Measure) [10].
+                    </li>
+            </ul>
+            <p>LAION-AI Aesthetic Predictor: “On a scale of 0-10, how aesthetically pleasing is our output?”
+            </p>
+            <ul>
+                <li>
+                    Uses a model trained on CLIP embeddings to rank an image on perceived aesthetic quality, where a higher score insinuates that it is more aesthetically pleasing. It was trained on 4000 samples that were annoted on a scale of 0 to 10 [11].
+                </li>
+            </ul>
+
+            <h4>Human Study Design</h4>
+            <p>To qualitatively compare the scoring methods, we conducted a human study in which participants viewed two images generated using either vanilla SD3, standard deviation, random selection, attention weights, or Scharr edge detection. We asked users to select the image that best matched the given MS-COCO prompt and was more visually appealing overall. Participants could choose “Image 1”, “Image 2”, or “Both images are about the same”. The metric used to generate each image was hidden and the order of questions were randomized to minimize bias.
+            </p>
+            <p>We evaluated each pair of scoring methods using three unique prompts, yielding 30 total comparisons. These comparisons were drawn from a pool of 16 prompts in total; some prompts appeared in more than one method pair, but no prompt was reused within a single pair. We selected image–prompt pairs from MS-COCO 2017 to ensure coverage of diverse scene types, including objects, animals, and human activities.Because a few method pairs were missing in the initial survey, the study was run in two parts. The first part received responses from 91 participants, and the second from 32 participants.
+            </p>
+            <p>We compute a weighted preference score for each method. For each prompt and method pair, we count the number of votes for each method and assign a weight of 1 to a direct preference and 0.5 to a neutral (“about the same”) response. The weighted total is then divided by the number of responses for that question to obtain a normalized score.
+            </p>
+
 
         <section id="results">
             <h2>4. Results</h2>
