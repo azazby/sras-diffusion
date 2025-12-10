@@ -254,7 +254,7 @@
             <h3 id="archichitectures">RAS Implementation</h3>
             <p>We build on the official RAS implementation for Stable Diffusion 3 by modifying the token scoring function used to select fast-update tokens. We evaluate two alternative scoring methods: attention-based and edge-based.</p>
 
-            <a href="https://github.com/azazby/sras-diffusion">Our Github repo canbe found here.</a>
+            <a href="https://github.com/azazby/sras-diffusion">Our Github repo can be found here.</a>
             
             <h4>How RAS selects tokens</h4>
                 <ul>
@@ -448,7 +448,8 @@
             
             <h4>5.2 Limitations and Future Work</h4>
             <p>Even though CLIP score is widely used for measuring image-prompt alignment, and LPIPS is used for image-image similarity, it is worth exploring whether CLIP and LPIPS are sufficient for evaluating the visual quality of a generative image model. Because LPIPS requires a set of reference images to compare results against, the scores are biased and not standardized. Common metrics like FID (Frechet Inception Distance) experience a similar limitation. For a more thorough comparison of RAS variants, we would like to explore unbiased and sample-efficient evaluations, such as CMMD [12].</p>
-            <p>Although the human study provides interesting preliminary results, it has several limitations. First, the study only included 15 prompts, which restricts our ability to generalize preferences across the full diversity of MS-COCO. Specifically, practical limits on survey length prevented us from evaluating a larger prompt set. Second, the survey was conducted in two parts due to missing comparisons in the initial version, resulting in uneven participant counts. To mitigate this, we aggregated preferences on a per-comparison basis and normalized scores, but the discrepancy in sample sizes may still introduce additional variance. Third, although a randomized prompt selection would reduce potential selection bias, it would require a substantially larger prompt set than was practical for our survey design, as mentioned earlier. Given more time, we would aim to include more prompts and increase the number of comparisons between methods within each prompt.</p>
+            <p>Although the human study provides interesting preliminary results, it has several limitations. First, it uses only 16 prompts, constrained by survey length, which limits how well we can generalize to the full diversity of MS-COCO. Second, the survey was run in two parts with uneven participant counts; we aggregated preferences per comparison and normalized scores, but differing sample sizes may still add variance. Third, randomized prompt selection would reduce selection bias but would require a much larger prompt set than was practical here. With more time, we would expand the prompt set and increase the number of comparisons per prompt.</p>
+            <p>Efficiently generating realistic images with reduced computation remains a challenging problem. Our findings indicate that attention-based scoring offers a promising source of semantic information for maintaining image quality in low-sampling settings. Future work could investigate hybrid scoring strategies or dynamically adjusting metrics across diffusion steps to further improve performance.</p>
         </section>
 
 
@@ -470,8 +471,8 @@
             </ol>
         </section>
 
-        <section id="references">
-             <h2 id="references">Appendix</h2>
+        <section id="appendix">
+            <h2 id="appendix">Appendix</h2>
             <h3>Preliminary Experiment Figures</h3>
 
             <img src="./elephant.png" alt="elephant.png" width="500" height="auto">
